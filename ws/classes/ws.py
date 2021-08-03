@@ -65,9 +65,11 @@ class HumecordWebsocket:
             "bot": None
         }
 
+        error = False
+
         try:
+            print("Start")
             await self.recv(
-                self,
                 websocket,
                 path,
                 bot
@@ -76,9 +78,14 @@ class HumecordWebsocket:
         except (websockets.exceptions.ConnectionClosedError) as e:
             # Delete from storage
             # Update: I will be doing that
+            error = True
+
+        except (websockets.exceptions.ConnectionClosedOK) as e:
             pass
 
+        print("Done")
         if bot["bot"] is not None:
+            print("Bot")
             if bot["bot"] in self.clients:
                 del self.clients[bot["bot"]]
 
@@ -91,7 +98,8 @@ class HumecordWebsocket:
                             "type": "response",
                             "action": "send_offline",
                             "data": {
-                                "bot": bot["bot"]
+                                "bot": bot["bot"],
+                                "error": error
                             }
                         }
                     )
